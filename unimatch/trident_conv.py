@@ -5,8 +5,9 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from torch.nn.modules.utils import _pair
+from nncf.torch.layers import register_module
 
-
+@register_module()
 class MultiScaleTridentConv(nn.Module):
     def __init__(
             self,

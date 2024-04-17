@@ -200,6 +200,10 @@ def generate_shift_window_attn_mask_1d(input_w, window_size_w,
                                        shift_size_w, device=torch.device('cuda')):
     # calculate attention mask for SW-MSA
     img_mask = torch.zeros((1, input_w, 1)).to(device)  # 1 W 1
+
+    # h_slices = (slice(0, -window_size_h),
+    #             slice(-window_size_h, -shift_size_h),
+    #             slice(-shift_size_h, None))
     w_slices = (slice(0, -window_size_w),
                 slice(-window_size_w, -shift_size_w),
                 slice(-shift_size_w, None))
