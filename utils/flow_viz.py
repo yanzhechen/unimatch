@@ -245,7 +245,7 @@ def flow_to_image(flow):
     """
     u = flow[:, :, 0]
     v = flow[:, :, 1]
-
+    print(type(u))
     maxu = -999.
     maxv = -999.
     minu = 999.

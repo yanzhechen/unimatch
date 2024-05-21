@@ -44,13 +44,13 @@ class UniMatch(nn.Module):
         # propagation with self-attn
         self.feature_flow_attn = SelfAttnPropagation(in_channels=feature_channels)
 
-        # if not self.reg_refine or task == 'depth':
-        #     # convex upsampling simiar to RAFT
-        #     # concat feature0 and low res flow as input
-        #     self.upsampler = nn.Sequential(nn.Conv2d(2 + feature_channels, 256, 3, 1, 1),
-        #                                    nn.ReLU(inplace=True),
-        #                                    nn.Conv2d(256, upsample_factor ** 2 * 9, 1, 1, 0))
-        #     # thus far, all the learnable parameters are task-agnostic
+        if not self.reg_refine or task == 'depth':
+            # convex upsampling simiar to RAFT
+            # concat feature0 and low res flow as input
+            self.upsampler = nn.Sequential(nn.Conv2d(2 + feature_channels, 256, 3, 1, 1),
+                                           nn.ReLU(inplace=True),
+                                           nn.Conv2d(256, upsample_factor ** 2 * 9, 1, 1, 0))
+            # thus far, all the learnable parameters are task-agnostic
 
         if reg_refine:
             # optional task-specific local regression refinement
@@ -258,25 +258,25 @@ class UniMatch(nn.Module):
             #                                  upsample_factor=upsample_factor,
             #                                  is_depth=task == 'depth')
             #     flow_preds.append(flow_up)
-            print("before scale")
-            print(flow.shape)
+
             if scale_idx == self.num_scales - 1:
-                # if not self.reg_refine:
-                #     # upsample to the original image resolution
+                if not self.reg_refine:
+                    # upsample to the original image resolution
 
-                #     if task == 'stereo':
-                #         flow_pad = torch.cat((-flow, torch.zeros_like(flow)), dim=1)  # [B, 2, H, W]
-                #         flow_up_pad = self.upsample_flow(flow_pad, feature0)
-                #         flow_up = -flow_up_pad[:, :1]  # [B, 1, H, W]
-                #     elif task == 'depth':
-                #         depth_pad = torch.cat((flow, torch.zeros_like(flow)), dim=1)  # [B, 2, H, W]
-                #         depth_up_pad = self.upsample_flow(depth_pad, feature0,
-                #                                           is_depth=True).clamp(min=min_depth, max=max_depth)
-                #         flow_up = depth_up_pad[:, :1]  # [B, 1, H, W]
-                #     else:
-                #         flow_up = self.upsample_flow(flow, feature0)
+                    if task == 'stereo':
+                        flow_pad = torch.cat((-flow, torch.zeros_like(flow)), dim=1)  # [B, 2, H, W]
+                        flow_up_pad = self.upsample_flow(flow_pad, feature0)
+                        flow_up = -flow_up_pad[:, :1]  # [B, 1, H, W]
+                    elif task == 'depth':
+                        depth_pad = torch.cat((flow, torch.zeros_like(flow)), dim=1)  # [B, 2, H, W]
+                        depth_up_pad = self.upsample_flow(depth_pad, feature0,
+                                                          is_depth=True).clamp(min=min_depth, max=max_depth)
+                        flow_up = depth_up_pad[:, :1]  # [B, 1, H, W]
+                    else:
+                        flow_up = self.upsample_flow(flow, feature0)
 
-                #     flow_preds.append(flow_up)
+                    flow_preds.append(flow_up)
+                    continue
                 # else:
                     # task-specific local regression refinement
                     # supervise current flow
@@ -366,7 +366,6 @@ class UniMatch(nn.Module):
                         #         flow_up = depth_up_pad[:, :1]  # [B, 1, H, W]
 
                         # else:
-                        print(flow.shape)
                         flow_up = upsample_flow_with_mask(flow, up_mask, upsample_factor=self.upsample_factor,
                                                                 is_depth=False)
 
