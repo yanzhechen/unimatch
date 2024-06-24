@@ -17,7 +17,7 @@ def get_args_parser():
                         help='where to save the output jpg')
     parser.add_argument('--model', '-m', default='unimatch_419_fit_dog.onnx', type=str,
                         help='where to save the output jpg')
-    parser.add_argument("--input_path", '-ip', default='.', type=str,
+    parser.add_argument("--input_path", '-ip', default='./datasets/Unimatch_validation_data/set1', type=str,
                         help='directory where is the input file')
     return parser
 
